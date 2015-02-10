@@ -62,14 +62,19 @@ Controller::Controller()
       m_lastStepWasBlocked(false),
       m_renderScalarField(true)
 {
+    setGridSizeX(128);
+    setGridSizeY(128);
+    setSimulatorOutputDirty(true);
+
     m_simulator.moveToThread(&m_simulatorWorker);
     connect(this, &Controller::requestStep, &m_simulator, &Simulator::step);
     connect(&m_simulator, &Simulator::stepCompleted, this, &Controller::finalizeStep);
     m_simulatorWorker.start();
     m_timer.start();
-    setGridSizeX(128);
-    setGridSizeY(128);
-    setSimulatorOutputDirty(true);
+    m_camera.pan = 0;
+    m_camera.roll = 0;
+    m_camera.tilt = 0;
+    m_camera.position = QVector3D(0.0, 1.0, 0.0);
 }
 
 Controller::~Controller()
@@ -134,6 +139,16 @@ void Controller::handleWindowChanged(QQuickWindow *win)
         win->setClearBeforeRendering(false);
     }
 }
+Camera Controller::camera() const
+{
+    return m_camera;
+}
+
+void Controller::setCamera(const Camera &camera)
+{
+    m_camera = camera;
+}
+
 
 // ********************************************
 // ******* Basic setters and getters **********
@@ -150,6 +165,13 @@ void Controller::setPreviousStepCompleted(bool arg)
 void Controller::setSimulatorOutputDirty(bool arg)
 {
     m_simulatorOutputDirty = arg;
+}
+
+void Controller::tiltPanRollEye(float tilt, float pan, float roll)
+{
+    m_camera.tilt += tilt;
+    m_camera.pan += pan;
+    m_camera.roll += roll;
 }
 
 bool Controller::running() const

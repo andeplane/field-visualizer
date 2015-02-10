@@ -20,7 +20,7 @@ public:
     ScalarField();
     ~ScalarField();
     void update(ScalarFieldData &data);
-    void render();
+    void render(const QMatrix4x4 &modelViewProjectionMatrix, float time);
     void resize(unsigned int numPointsX, unsigned int numPointsY);
 private:
     unsigned int m_numPointsX;

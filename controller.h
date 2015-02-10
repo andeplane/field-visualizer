@@ -51,6 +51,16 @@
 #include "simulator.h"
 #include "renderer.h"
 namespace CompPhys {
+
+struct Camera
+{
+public:
+    double tilt;
+    double pan;
+    double roll;
+    QVector3D position;
+};
+
 class Controller : public QQuickFramebufferObject
 {
     Q_OBJECT
@@ -88,6 +98,9 @@ public:
         return m_gridSizeY;
     }
 
+    Camera camera() const;
+    void setCamera(const Camera &camera);
+
 public slots:
     void setRunning(bool arg);
     void setPreviousStepCompleted(bool arg);
@@ -122,6 +135,8 @@ public slots:
         emit gridSizeYChanged(arg);
     }
 
+    void tiltPanRollEye(float tilt, float pan, float roll);
+
 private slots:
     void finalizeStep();
 
@@ -154,6 +169,7 @@ private:
     QMutex m_simulatorOutputMutex;
     QMutex m_simulatorRunningMutex;
     QThread m_simulatorWorker;
+    Camera m_camera;
     friend class CompPhys::Renderer;
     bool m_renderScalarField;
     int m_gridSizeX;

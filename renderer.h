@@ -24,10 +24,19 @@ public:
     void synchronize(QQuickFramebufferObject *item);
     void render();
 
+    void setModelViewMatrices(QVector3D position, double tilt, double pan, double roll);
+    void resetProjection();
+    QSize viewportSize() const;
+    void setViewportSize(const QSize &viewportSize);
+
 private:
     bool m_skipNextFrame;
     bool m_renderPoints;
     bool m_renderScalarField;
+    float m_time;
+    QMatrix4x4 m_projectionMatrix;
+    QMatrix4x4 m_modelViewMatrix;
+    QSize m_viewportSize;
     ScalarField m_scalarField;
     VisualData m_data;
 

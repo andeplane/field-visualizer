@@ -54,9 +54,17 @@ void ScalarField::createShaderProgram() {
         m_program = new QOpenGLShaderProgram();
 
         m_program->addShaderFromSourceCode(QOpenGLShader::Vertex,
+                                           "float height(float x, float y, float t) {\n"
+                                           "    return sin(x)*cos(2.0*y)*cos(t);\n"
+                                           "}\n"
                                            "attribute highp vec4 a_position;\n"
+                                           "uniform highp mat4 modelViewProjectionMatrix;\n"
+                                           "uniform float time;\n"
                                            "void main() {\n"
-                                           "    gl_Position = a_position;\n"
+                                           "    float z = height(a_position.x, a_position.y, time);\n"
+                                           "    lowp vec4 position = a_position;\n"
+                                           "    position.z = z;\n"
+                                           "    gl_Position = modelViewProjectionMatrix*position;\n"
                                            "}");
 
         m_program->addShaderFromSourceCode(QOpenGLShader::Fragment,
@@ -69,13 +77,15 @@ void ScalarField::createShaderProgram() {
     }
 }
 
-void ScalarField::render()
+void ScalarField::render(const QMatrix4x4 &modelViewProjectionMatrix, float time)
 {
     if(m_vertices.size() == 0) return;
     ensureInitialized();
     createShaderProgram();
 
     m_program->bind();
+    m_program->setUniformValue("modelViewProjectionMatrix", modelViewProjectionMatrix);
+    m_program->setUniformValue("time", time);
 
     // Tell OpenGL which VBOs to use
     m_funcs->glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
@@ -89,30 +99,15 @@ void ScalarField::render()
     m_program->enableAttributeArray(vertexLocation);
     m_funcs->glVertexAttribPointer(vertexLocation, 3, GL_FLOAT, GL_FALSE, sizeof(ScalarFieldVertex), (const void *)offset);
 
-    // Offset for texture coordinate
-    offset += sizeof(QVector3D);
-
-    // Tell OpenGL programmable pipeline how to locate vertex color data
-    int colorLocation = m_program->attributeLocation("a_color");
-    m_program->enableAttributeArray(colorLocation);
-    m_funcs->glVertexAttribPointer(colorLocation, 3, GL_FLOAT, GL_FALSE, sizeof(ScalarFieldVertex), (const void *)offset);
-
-    // glEnable(GL_BLEND);
-    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    // Draw triangles using indices from VBO 1
-    // glEnable(GL_BLEND);
-    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    m_funcs->glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
-    // glDisable(GL_BLEND);
+    // m_funcs->glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
+    m_funcs->glDrawElements(GL_LINES, m_indices.size(), GL_UNSIGNED_INT, 0);
     m_program->disableAttributeArray(vertexLocation);
-    m_program->disableAttributeArray(colorLocation);
 
     m_program->release();
 }
 
 void ScalarField::resize(unsigned int numPointsX, unsigned int numPointsY)
 {
-    qDebug() << "Will resize: " << numPointsX << ", " << numPointsY;
     if(m_numPointsX == numPointsX && m_numPointsY == numPointsY) return; // Not changed
     m_numPointsX = numPointsX;
     m_numPointsY = numPointsY;
@@ -124,8 +119,8 @@ void ScalarField::resize(unsigned int numPointsX, unsigned int numPointsY)
     m_indices.reserve(numIndices);
     for(int i=0; i<int(numPointsX); i++) {
         for(int j=0; j<int(numPointsY); j++) {
-            float x = 2*(float(i)/(numPointsX-1) - 0.5);
-            float y = 2*(float(j)/(numPointsY-1) - 0.5);
+            float x = 30*(float(i)/(numPointsX-1) - 0.5);
+            float y = 30*(float(j)/(numPointsY-1) - 0.5);
             float z = 0.0;
 
             unsigned int idx = index(i, j);

@@ -9,7 +9,8 @@ SOURCES += main.cpp \
     controller.cpp \
     simulator.cpp \
     random.cpp \
-    scalarfield.cpp
+    scalarfield.cpp \
+    mousemover.cpp
 
 RESOURCES += qml.qrc
 
@@ -24,4 +25,5 @@ HEADERS += \
     controller.h \
     simulator.h \
     random.h \
-    scalarfield.h
+    scalarfield.h \
+    mousemover.h
