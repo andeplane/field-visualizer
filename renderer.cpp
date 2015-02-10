@@ -23,6 +23,7 @@ void Renderer::synchronize(QQuickFramebufferObject* item)
 
     resetProjection();
     setModelViewMatrices(controller->camera().position, controller->camera().tilt, controller->camera().pan, controller->camera().roll);
+    m_cameraPosition = controller->camera().position;
 
     if(controller->simulatorOutputDirty()) {
         controller->m_simulatorOutputMutex.lock();
@@ -50,7 +51,7 @@ void Renderer::render()
     // Render data
     QMatrix4x4 modelViewProjectionMatrix = m_projectionMatrix * m_modelViewMatrix;
 
-    if(m_renderScalarField) m_scalarField.render(modelViewProjectionMatrix, m_time);
+    if(m_renderScalarField) m_scalarField.render(modelViewProjectionMatrix, m_modelViewMatrix, m_cameraPosition, m_time);
     m_time+=1e-2;
 }
 
@@ -81,11 +82,32 @@ void Renderer::setViewportSize(const QSize &viewportSize)
 void Renderer::setModelViewMatrices(QVector3D position, double tilt, double pan, double roll)
 {
     m_modelViewMatrix.setToIdentity();
-    m_modelViewMatrix.translate(position);
+
+    // m_modelViewMatrix.translate(QVector3D(position.x(), position.z(), position.y()));
+
     m_modelViewMatrix.rotate(90, 1, 0, 0);
     m_modelViewMatrix.rotate(tilt, 1, 0, 0);
     m_modelViewMatrix.rotate(pan, 0, 0, 1);
-    m_modelViewMatrix.rotate(roll, 0, 1, 0);
+
+    // qDebug() << "Tilt: " << tilt << "  pan: " << pan;
+
+    float x = cos(M_PI/180*pan)*cos(M_PI/180*tilt);
+    float y = sin(M_PI/180*pan)*cos(M_PI/180*tilt);
+    float z = sin(M_PI/180*tilt);
+
+//    float xUp = -z*x/sqrt(x*x+y*y);
+//    float yUp = -z*y/sqrt(x*x+y*y);
+//    float zUp = sqrt(x*x+y*y);
+
+    // qDebug() << "Forward: [" << x << ", " << y << ", " << z << "]";
+
+
+    // qDebug() << "Up: [" << xUp << ", " << yUp << ", " << zUp << "]";
+
+
+
+    // m_modelViewMatrix.rotate(0, x,y,z);
+
 }
 
 Renderer::Renderer() :

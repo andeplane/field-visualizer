@@ -74,7 +74,7 @@ Controller::Controller()
     m_camera.pan = 0;
     m_camera.roll = 0;
     m_camera.tilt = 0;
-    m_camera.position = QVector3D(0.0, 1.0, 0.0);
+    m_camera.position = QVector3D(0.0, 0.0, 5.0);
 }
 
 Controller::~Controller()
@@ -169,9 +169,19 @@ void Controller::setSimulatorOutputDirty(bool arg)
 
 void Controller::tiltPanRollEye(float tilt, float pan, float roll)
 {
-    m_camera.tilt += tilt;
-    m_camera.pan += pan;
-    m_camera.roll += roll;
+    m_camera.tilt = tilt;
+    m_camera.pan = pan;
+    m_camera.roll = roll;
+}
+
+void Controller::translateCamera(QVector3D deltaPosition)
+{
+    m_camera.position += QVector3D(deltaPosition.x(), deltaPosition.y(), deltaPosition.z());
+}
+
+QVector3D Controller::cameraPosition()
+{
+    return m_camera.position;
 }
 
 bool Controller::running() const

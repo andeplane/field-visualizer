@@ -136,6 +136,8 @@ public slots:
     }
 
     void tiltPanRollEye(float tilt, float pan, float roll);
+    void translateCamera(QVector3D deltaPosition);
+    QVector3D cameraPosition();
 
 private slots:
     void finalizeStep();

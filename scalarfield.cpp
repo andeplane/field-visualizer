@@ -55,13 +55,17 @@ void ScalarField::createShaderProgram() {
 
         m_program->addShaderFromSourceCode(QOpenGLShader::Vertex,
                                            "float height(float x, float y, float t) {\n"
-                                           "    return sin(x)*cos(2.0*y)*cos(t);\n"
+                                           "    return x*cos(y);\n"
                                            "}\n"
                                            "attribute highp vec4 a_position;\n"
+                                           "uniform highp mat4 modelViewMatrix;\n"
                                            "uniform highp mat4 modelViewProjectionMatrix;\n"
+                                           "uniform highp vec3 cameraPosition;\n"
                                            "uniform float time;\n"
                                            "void main() {\n"
-                                           "    float z = height(a_position.x, a_position.y, time);\n"
+                                           "    float x = a_position.x - cameraPosition.y;\n"
+                                           "    float y = a_position.y - cameraPosition.x;\n"
+                                           "    float z = height(x, y, time) - cameraPosition.z;\n"
                                            "    lowp vec4 position = a_position;\n"
                                            "    position.z = z;\n"
                                            "    gl_Position = modelViewProjectionMatrix*position;\n"
@@ -77,7 +81,7 @@ void ScalarField::createShaderProgram() {
     }
 }
 
-void ScalarField::render(const QMatrix4x4 &modelViewProjectionMatrix, float time)
+void ScalarField::render(const QMatrix4x4 &modelViewProjectionMatrix, const QMatrix4x4 &modelViewMatrix, QVector3D cameraPosition, float time)
 {
     if(m_vertices.size() == 0) return;
     ensureInitialized();
@@ -85,6 +89,8 @@ void ScalarField::render(const QMatrix4x4 &modelViewProjectionMatrix, float time
 
     m_program->bind();
     m_program->setUniformValue("modelViewProjectionMatrix", modelViewProjectionMatrix);
+    m_program->setUniformValue("modelViewMatrix", modelViewMatrix);
+    m_program->setUniformValue("cameraPosition", cameraPosition);
     m_program->setUniformValue("time", time);
 
     // Tell OpenGL which VBOs to use
