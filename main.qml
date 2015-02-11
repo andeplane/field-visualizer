@@ -9,6 +9,7 @@ import MouseMover 1.0
 
 Item {
     id: controllerRoot
+    property bool activateOnPressed: true
     property bool _ignoreMouseMoverMove: false
     property bool _firstMove: true
     property bool _secondMove: false
@@ -43,6 +44,20 @@ Item {
         console.log("Platform: " + Qt.platform.os)
     }
 
+    function activate() {
+        controllerRoot.forceActiveFocus()
+        _firstMove = true;
+        _ignoreMouseMoverMove = true;
+        mouseMover.move(controllerRoot.width / 2, controllerRoot.height / 2);
+        mouseMover.showCursor = false
+        _ignoreMouseMoverMove = false;
+    }
+
+    function deactivate() {
+        controllerRoot.focus = false
+        mouseMover.showCursor = true
+    }
+
     Controller {
         id: controller
         anchors.fill: parent
@@ -75,6 +90,7 @@ Item {
 
     MouseMover {
         id: mouseMover
+        showCursor: false
     }
 
     MouseArea {
@@ -89,11 +105,7 @@ Item {
             if(_ignoreMouseMoverMove) {
                 return;
             }
-            //            if(!camera) {
-            //                _printMissingCameraMessage();
 
-            //                return;
-            //            }
             if(_firstMove) {
                 _firstMove = false
                 _secondMove = true
@@ -122,6 +134,13 @@ Item {
         }
         onMouseYChanged: {
             mouseMoved(mouse)
+        }
+
+        onPressed: {
+            if(activateOnPressed) {
+                controllerRoot.activate()
+            }
+
         }
     }
 
@@ -302,7 +321,7 @@ Item {
             y: axes.size
             width: axes.size*0.5
             height: 2
-            color: "gray"
+            color: "white"
             transform: Rotation {
                 origin.x: 0
                 origin.y: 0
