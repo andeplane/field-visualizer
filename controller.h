@@ -69,6 +69,7 @@ class Controller : public QQuickFramebufferObject
     Q_PROPERTY(bool renderScalarField READ renderScalarField WRITE setRenderScalarField NOTIFY renderScalarFieldChanged)
     Q_PROPERTY(int gridSizeX READ gridSizeX WRITE setGridSizeX NOTIFY gridSizeXChanged)
     Q_PROPERTY(int gridSizeY READ gridSizeY WRITE setGridSizeY NOTIFY gridSizeYChanged)
+    Q_PROPERTY(QVector3D cameraPosition READ cameraPosition WRITE setCameraPosition)
 public:
     Controller();
     ~Controller();
@@ -136,8 +137,12 @@ public slots:
     }
 
     void tiltPanRollEye(float tilt, float pan, float roll);
-    void translateCamera(QVector3D deltaPosition);
     QVector3D cameraPosition();
+
+    void setCameraPosition(QVector3D arg)
+    {
+        m_camera.position = arg;
+    }
 
 private slots:
     void finalizeStep();

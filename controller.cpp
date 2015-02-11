@@ -174,11 +174,6 @@ void Controller::tiltPanRollEye(float tilt, float pan, float roll)
     m_camera.roll = roll;
 }
 
-void Controller::translateCamera(QVector3D deltaPosition)
-{
-    m_camera.position += QVector3D(deltaPosition.x(), deltaPosition.y(), deltaPosition.z());
-}
-
 QVector3D Controller::cameraPosition()
 {
     return m_camera.position;

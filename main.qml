@@ -9,9 +9,6 @@ import MouseMover 1.0
 
 Item {
     id: controllerRoot
-    property real cameraX: 0
-    property real cameraY: 0
-    property real cameraZ: 5.0
     property bool _ignoreMouseMoverMove: false
     property bool _firstMove: true
     property bool _secondMove: false
@@ -235,23 +232,83 @@ Item {
 
             translation = translation.plus(forwardVector.times(forwardSpeed))
             translation = translation.plus(rightVector.times(rightSpeed))
-            var cameraPos = controller.cameraPosition();
-            //                console.log("Tilt: "+tilt+"   pan: "+pan)
-            //                console.log("Forward: "+forwardVector)
-            //                console.log("Camera: "+cameraPos)
-            controller.translateCamera(translation)
-
+            var cameraPos = controller.cameraPosition;
+//            console.log("Tilt: "+tilt+"   pan: "+pan)
+//            console.log("Forward: "+forwardVector)
+//            console.log("Camera: "+cameraPos)
+            cameraPos = cameraPos.plus(translation)
+            controller.setCameraPosition(cameraPos);
+            labelX.text = "x: "+cameraPos.x.toFixed(3)
+            labelY.text = "y: "+cameraPos.y.toFixed(3)
         }
     }
 
-    Rectangle {
+    Item {
         x: 10
         y: 10
         width: 100
         height: 100
-        color: "white"
-        opacity: 0.4
+        // color: "white"
 
+        Label {
+            id: labelX
+            color: "red"
+            anchors.left: parent.left
+            anchors.top: parent.top
+            anchors.leftMargin: 5;
+            anchors.topMargin: 2;
+            opacity: 1
+        }
+
+        Label {
+            id: labelY
+            color: "green"
+            anchors.left: labelX.anchors.left
+            anchors.leftMargin: labelX.anchors.leftMargin
+            anchors.top: labelX.bottom
+            opacity: 1
+        }
+    }
+
+    Item {
+        id: axes
+        property real size: 50
+        height: size
+        width: size
+        anchors.bottom: controllerRoot.bottom
+        anchors.left: controllerRoot.left
+        anchors.leftMargin: size+20
+        anchors.bottomMargin: size+20
+
+        Rectangle {
+            y: axes.size
+            width: axes.size
+            height: 2
+            opacity: 1.0
+            color: "red"
+        }
+
+        Rectangle {
+            width: axes.size
+            x: -0.5*width
+            y: 0.5*width
+            height: 2
+            color: "green"
+            rotation: 90
+        }
+
+        Rectangle {
+            x: 0
+            y: axes.size
+            width: axes.size*0.5
+            height: 2
+            color: "gray"
+            transform: Rotation {
+                origin.x: 0
+                origin.y: 0
+                angle: -pan
+            }
+        }
     }
 }
 
