@@ -9,6 +9,9 @@ import MouseMover 1.0
 
 Item {
     id: controllerRoot
+    property real cameraX: 0
+    property real cameraY: 0
+    property real cameraZ: 5.0
     property bool _ignoreMouseMoverMove: false
     property bool _firstMove: true
     property bool _secondMove: false
@@ -46,8 +49,8 @@ Item {
     Controller {
         id: controller
         anchors.fill: parent
-        gridSizeX: 256
-        gridSizeY: 256
+        gridSizeX: 1536
+        gridSizeY: 1536
         running: true
 
         Timer {
@@ -89,11 +92,11 @@ Item {
             if(_ignoreMouseMoverMove) {
                 return;
             }
-//            if(!camera) {
-//                _printMissingCameraMessage();
+            //            if(!camera) {
+            //                _printMissingCameraMessage();
 
-//                return;
-//            }
+            //                return;
+            //            }
             if(_firstMove) {
                 _firstMove = false
                 _secondMove = true
@@ -170,75 +173,85 @@ Item {
     }
 
     Timer {
-            id: moveTimer
-            property bool forward: false
-            property bool backward: false
-            property bool left: false
-            property bool right: false
-            property real forwardSpeed: 0.0
-            property real rightSpeed: 0.0
-            property real lastTime: 0
-            running: true
-            repeat: true
-            interval: 16
+        id: moveTimer
+        property bool forward: false
+        property bool backward: false
+        property bool left: false
+        property bool right: false
+        property real forwardSpeed: 0.0
+        property real rightSpeed: 0.0
+        property real lastTime: 0
+        running: true
+        repeat: true
+        interval: 16
 
-            onTriggered: {
-                var currentTime = Date.now();
-                var timeDifference = currentTime-lastTime;
-                timeDifference /= 1000.0;
-                lastTime = currentTime;
-                if(timeDifference > 1.0) {
-                    return;
-                }
-                var degToRad = Math.PI/180;
-                console.log(Math.cos(90))
-                var xF = Math.cos(pan*degToRad)*Math.cos(tilt*degToRad);
-                var yF = Math.sin(pan*degToRad)*Math.cos(tilt*degToRad);
-                var zF = Math.sin(tilt*degToRad);
-
-                var xUp = -zF*xF/Math.sqrt(xF*xF+yF*yF);
-                var yUp = -zF*yF/Math.sqrt(xF*xF+yF*yF);
-                var zUp = Math.sqrt(xF*xF+yF*yF);
-
-                var forwardVector = Qt.vector3d(xF,yF,zF);
-                var upVector = Qt.vector3d(xUp, yUp, zUp)
-                var a = forwardVector;
-                var b = upVector;
-                var rightVector = Qt.vector3d(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x); // cross product, a x b
-                rightVector = rightVector.normalized();
-                var translation = Qt.vector3d(0,0,0);
-
-                var speed = moveSpeed;
-                if(_hyperSpeed) {
-                    speed *= hyperSpeedFactor;
-                }
-
-                // Decide what to do based on velocity
-                if(forward) {
-                    forwardSpeed = speed*timeDifference;
-                } else if(backward) {
-                    forwardSpeed = -speed*timeDifference;
-                } else {
-                    forwardSpeed = 0;
-                }
-
-                if(right) {
-                    rightSpeed = speed*timeDifference;
-                } else if(left) {
-                    rightSpeed = -speed*timeDifference;
-                } else {
-                    rightSpeed = 0;
-                }
-
-                translation = translation.plus(forwardVector.times(forwardSpeed))
-                translation = translation.plus(rightVector.times(rightSpeed))
-                var cameraPos = controller.cameraPosition();
-                console.log("Tilt: "+tilt+"   pan: "+pan)
-                console.log("Forward: "+forwardVector)
-                console.log("Camera: "+cameraPos)
-
-                controller.translateCamera(translation)
+        onTriggered: {
+            var currentTime = Date.now();
+            var timeDifference = currentTime-lastTime;
+            timeDifference /= 1000.0;
+            lastTime = currentTime;
+            if(timeDifference > 1.0) {
+                return;
             }
+
+            var degToRad = Math.PI/180;
+            var xF = Math.cos(pan*degToRad)*Math.cos(tilt*degToRad);
+            var yF = Math.sin(pan*degToRad)*Math.cos(tilt*degToRad);
+            var zF = Math.sin(tilt*degToRad);
+
+            var xUp = -zF*xF/Math.sqrt(xF*xF+yF*yF);
+            var yUp = -zF*yF/Math.sqrt(xF*xF+yF*yF);
+            var zUp = Math.sqrt(xF*xF+yF*yF);
+
+            var forwardVector = Qt.vector3d(xF,yF,zF);
+            var upVector = Qt.vector3d(xUp, yUp, zUp)
+            var a = forwardVector;
+            var b = upVector;
+            var rightVector = Qt.vector3d(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x); // cross product, a x b
+            rightVector = rightVector.normalized();
+            var translation = Qt.vector3d(0,0,0);
+
+            var speed = moveSpeed;
+            if(_hyperSpeed) {
+                speed *= hyperSpeedFactor;
+            }
+
+            // Decide what to do based on velocity
+            if(forward) {
+                forwardSpeed = speed*timeDifference;
+            } else if(backward) {
+                forwardSpeed = -speed*timeDifference;
+            } else {
+                forwardSpeed = 0;
+            }
+
+            if(right) {
+                rightSpeed = speed*timeDifference;
+            } else if(left) {
+                rightSpeed = -speed*timeDifference;
+            } else {
+                rightSpeed = 0;
+            }
+
+            translation = translation.plus(forwardVector.times(forwardSpeed))
+            translation = translation.plus(rightVector.times(rightSpeed))
+            var cameraPos = controller.cameraPosition();
+            //                console.log("Tilt: "+tilt+"   pan: "+pan)
+            //                console.log("Forward: "+forwardVector)
+            //                console.log("Camera: "+cameraPos)
+            controller.translateCamera(translation)
+
         }
+    }
+
+    Rectangle {
+        x: 10
+        y: 10
+        width: 100
+        height: 100
+        color: "white"
+        opacity: 0.4
+
+    }
 }
 

@@ -55,25 +55,50 @@ void ScalarField::createShaderProgram() {
 
         m_program->addShaderFromSourceCode(QOpenGLShader::Vertex,
                                            "float height(float x, float y, float t) {\n"
-                                           "    return x*cos(y);\n"
+                                           // "    return exp(-(x*x + y*y));\n"
+                                           "    return sin(x)*cos(y);\n"
                                            "}\n"
-                                           "attribute highp vec4 a_position;\n"
-                                           "uniform highp mat4 modelViewMatrix;\n"
-                                           "uniform highp mat4 modelViewProjectionMatrix;\n"
-                                           "uniform highp vec3 cameraPosition;\n"
+                                           "lowp vec3 calculateNormal(float x, float y, float t) {\n"
+                                           //"    float dh_dx = -2.0*x*height(x,y,t);\n"
+                                           //"    float dh_dy = -2.0*y*height(x,y,t);\n"
+                                           "    float dh_dx = cos(x)*cos(y);\n"
+                                           "    float dh_dy = -sin(x)*sin(y);\n"
+                                           "    lowp vec3 t1 = normalize(vec3(1.0, 0.0, dh_dx));\n"
+                                           "    lowp vec3 t2 = normalize(vec3(0.0, 1.0, dh_dy));\n"
+                                           "    return cross(t1,t2);\n"
+                                           "}\n"
+                                           "attribute vec4 a_position;\n"
+                                           "uniform mat4 modelViewProjectionMatrix;\n"
+                                           "uniform vec3 cameraPosition;\n"
                                            "uniform float time;\n"
+                                           "uniform float scaling;\n"
+                                           "varying vec3 normal;\n"
+                                           "uniform float lightFalloffDistance;\n"
+                                           "varying float light;\n"
                                            "void main() {\n"
-                                           "    float x = a_position.x - cameraPosition.y;\n"
-                                           "    float y = a_position.y - cameraPosition.x;\n"
-                                           "    float z = height(x, y, time) - cameraPosition.z;\n"
-                                           "    lowp vec4 position = a_position;\n"
+                                           "    float x = scaling*(a_position.x - cameraPosition.y);\n"
+                                           "    float y = scaling*(a_position.y - cameraPosition.x);\n"
+                                           "    float z = height(x, y, time)/scaling - cameraPosition.z;\n"
+                                           "    vec4 position = a_position;\n"
                                            "    position.z = z;\n"
                                            "    gl_Position = modelViewProjectionMatrix*position;\n"
+                                           "    normal = calculateNormal(x,y,time);\n"
+                                           "    highp vec4 lightPosition = modelViewProjectionMatrix*position;\n"
+                                           "    highp float lightDistance = min(lightPosition.z, gl_Position.z);\n"
+                                           "    light = clamp((lightFalloffDistance * 0.85 - lightDistance) / (lightFalloffDistance * 0.7), 0.4, 1.0);\n"
                                            "}");
 
         m_program->addShaderFromSourceCode(QOpenGLShader::Fragment,
+                                           "uniform vec3 cameraPosition;\n"
+                                           "varying vec3 normal;\n"
+                                           "varying float light;\n"
                                            "void main() {\n"
-                                           "    gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);\n"
+                                           "  vec3 lightPos = vec3(0.0, 0.0, cameraPosition.z);"
+                                           "  vec4 val = vec4(28.0/255.0,144.0/255.0,153.0/255.0,1.0);\n"
+                                           "  float lightValue = light*clamp(dot(normalize(lightPos), normalize(normal)), 0.0, 1.0);\n"
+                                           "  gl_FragColor = vec4(val.xyz*lightValue, 1.0);\n"
+
+                                           //"    gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);\n"
                                            "}");
 
 
@@ -81,17 +106,18 @@ void ScalarField::createShaderProgram() {
     }
 }
 
-void ScalarField::render(const QMatrix4x4 &modelViewProjectionMatrix, const QMatrix4x4 &modelViewMatrix, QVector3D cameraPosition, float time)
+void ScalarField::render(const QMatrix4x4 &modelViewProjectionMatrix, QVector3D cameraPosition, float time, float scaling)
 {
     if(m_vertices.size() == 0) return;
     ensureInitialized();
     createShaderProgram();
-
+    float lightFalloffDistance = 500.0;
     m_program->bind();
     m_program->setUniformValue("modelViewProjectionMatrix", modelViewProjectionMatrix);
-    m_program->setUniformValue("modelViewMatrix", modelViewMatrix);
     m_program->setUniformValue("cameraPosition", cameraPosition);
     m_program->setUniformValue("time", time);
+    m_program->setUniformValue("lightFalloffDistance", lightFalloffDistance);
+    m_program->setUniformValue("scaling", scaling);
 
     // Tell OpenGL which VBOs to use
     m_funcs->glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
@@ -104,9 +130,9 @@ void ScalarField::render(const QMatrix4x4 &modelViewProjectionMatrix, const QMat
     int vertexLocation = m_program->attributeLocation("a_position");
     m_program->enableAttributeArray(vertexLocation);
     m_funcs->glVertexAttribPointer(vertexLocation, 3, GL_FLOAT, GL_FALSE, sizeof(ScalarFieldVertex), (const void *)offset);
-
-    // m_funcs->glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
-    m_funcs->glDrawElements(GL_LINES, m_indices.size(), GL_UNSIGNED_INT, 0);
+    glEnable(GL_DEPTH_TEST);
+    m_funcs->glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
+    // m_funcs->glDrawElements(GL_LINES, m_indices.size(), GL_UNSIGNED_INT, 0);
     m_program->disableAttributeArray(vertexLocation);
 
     m_program->release();
@@ -125,8 +151,8 @@ void ScalarField::resize(unsigned int numPointsX, unsigned int numPointsY)
     m_indices.reserve(numIndices);
     for(int i=0; i<int(numPointsX); i++) {
         for(int j=0; j<int(numPointsY); j++) {
-            float x = 30*(float(i)/(numPointsX-1) - 0.5);
-            float y = 30*(float(j)/(numPointsY-1) - 0.5);
+            float x = 1000*(float(i)/(numPointsX-1) - 0.5);
+            float y = 1000*(float(j)/(numPointsY-1) - 0.5);
             float z = 0.0;
 
             unsigned int idx = index(i, j);

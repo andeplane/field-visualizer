@@ -34,9 +34,11 @@ private:
     bool m_renderPoints;
     bool m_renderScalarField;
     float m_time;
+    float m_scaling;
     QVector3D m_cameraPosition;
     QMatrix4x4 m_projectionMatrix;
     QMatrix4x4 m_modelViewMatrix;
+    QMatrix4x4 m_lightModelViewMatrix;
     QSize m_viewportSize;
     ScalarField m_scalarField;
     VisualData m_data;
