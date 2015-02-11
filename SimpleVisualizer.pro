@@ -27,3 +27,5 @@ HEADERS += \
     random.h \
     scalarfield.h \
     mousemover.h
+
+DISTFILES +=

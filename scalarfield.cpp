@@ -2,6 +2,7 @@
 #include <QColor>
 #include <QRgb>
 #include <iostream>
+#include <QFile>
 
 using std::cout; using std::endl;
 using std::vector;
@@ -53,53 +54,9 @@ void ScalarField::createShaderProgram() {
     if (!m_program) {
         m_program = new QOpenGLShaderProgram();
 
-        m_program->addShaderFromSourceCode(QOpenGLShader::Vertex,
-                                           "float height(float x, float y, float t) {\n"
-                                           // "    return exp(-(x*x + y*y));\n"
-                                           "    return sin(x)*cos(y);\n"
-                                           "}\n"
-                                           "lowp vec3 calculateNormal(float x, float y, float t) {\n"
-                                           //"    float dh_dx = -2.0*x*height(x,y,t);\n"
-                                           //"    float dh_dy = -2.0*y*height(x,y,t);\n"
-                                           "    float dh_dx = cos(x)*cos(y);\n"
-                                           "    float dh_dy = -sin(x)*sin(y);\n"
-                                           "    lowp vec3 t1 = normalize(vec3(1.0, 0.0, dh_dx));\n"
-                                           "    lowp vec3 t2 = normalize(vec3(0.0, 1.0, dh_dy));\n"
-                                           "    return cross(t1,t2);\n"
-                                           "}\n"
-                                           "attribute vec4 a_position;\n"
-                                           "uniform mat4 modelViewProjectionMatrix;\n"
-                                           "uniform vec3 cameraPosition;\n"
-                                           "uniform float time;\n"
-                                           "uniform float scaling;\n"
-                                           "varying vec3 normal;\n"
-                                           "uniform float lightFalloffDistance;\n"
-                                           "varying float light;\n"
-                                           "void main() {\n"
-                                           "    float x = scaling*(a_position.x - cameraPosition.y);\n"
-                                           "    float y = scaling*(a_position.y - cameraPosition.x);\n"
-                                           "    float z = height(x, y, time)/scaling - cameraPosition.z;\n"
-                                           "    vec4 position = a_position;\n"
-                                           "    position.z = z;\n"
-                                           "    gl_Position = modelViewProjectionMatrix*position;\n"
-                                           "    normal = calculateNormal(x,y,time);\n"
-                                           "    highp vec4 lightPosition = modelViewProjectionMatrix*position;\n"
-                                           "    highp float lightDistance = min(lightPosition.z, gl_Position.z);\n"
-                                           "    light = clamp((lightFalloffDistance * 0.85 - lightDistance) / (lightFalloffDistance * 0.7), 0.4, 1.0);\n"
-                                           "}");
+        m_program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shader.vert");
+        m_program->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shader.frag");
 
-        m_program->addShaderFromSourceCode(QOpenGLShader::Fragment,
-                                           "uniform vec3 cameraPosition;\n"
-                                           "varying vec3 normal;\n"
-                                           "varying float light;\n"
-                                           "void main() {\n"
-                                           "  vec3 lightPos = vec3(0.0, 0.0, cameraPosition.z);"
-                                           "  vec4 val = vec4(28.0/255.0,144.0/255.0,153.0/255.0,1.0);\n"
-                                           "  float lightValue = light*clamp(dot(normalize(lightPos), normalize(normal)), 0.0, 1.0);\n"
-                                           "  gl_FragColor = vec4(val.xyz*lightValue, 1.0);\n"
-
-                                           //"    gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);\n"
-                                           "}");
 
 
         m_program->link();
@@ -151,8 +108,8 @@ void ScalarField::resize(unsigned int numPointsX, unsigned int numPointsY)
     m_indices.reserve(numIndices);
     for(int i=0; i<int(numPointsX); i++) {
         for(int j=0; j<int(numPointsY); j++) {
-            float x = 1000*(float(i)/(numPointsX-1) - 0.5);
-            float y = 1000*(float(j)/(numPointsY-1) - 0.5);
+            float x = 500*(float(i)/(numPointsX-1) - 0.5);
+            float y = 500*(float(j)/(numPointsY-1) - 0.5);
             float z = 0.0;
 
             unsigned int idx = index(i, j);
