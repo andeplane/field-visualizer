@@ -22,6 +22,9 @@ class Camera : public QObject
     Q_PROPERTY(float nearPlane READ nearPlane WRITE setNearPlane NOTIFY nearPlaneChanged)
     Q_PROPERTY(float farPlane READ farPlane WRITE setFarPlane NOTIFY farPlaneChanged)
     Q_PROPERTY(float fieldOfView READ fieldOfView WRITE setFieldOfView NOTIFY fieldOfViewChanged)
+    Q_PROPERTY(bool hyperSpeed READ hyperSpeed WRITE setHyperSpeed NOTIFY hyperSpeedChanged)
+    Q_PROPERTY(float moveSpeed READ moveSpeed WRITE setMoveSpeed NOTIFY moveSpeedChanged)
+    Q_PROPERTY(float hyperSpeedFactor READ hyperSpeedFactor WRITE setHyperSpeedFactor NOTIFY hyperSpeedFactorChanged)
 
 private:
     QVector3D m_position;
@@ -45,6 +48,12 @@ private:
     float m_farPlane;
 
     float m_nearPlane;
+
+    bool m_hyperSpeed;
+
+    float m_moveSpeed;
+
+    float m_hyperSpeedFactor;
 
 public:
     explicit Camera(QObject *parent = 0);
@@ -122,6 +131,21 @@ public:
     float nearPlane() const
     {
         return m_nearPlane;
+    }
+
+    bool hyperSpeed() const
+    {
+        return m_hyperSpeed;
+    }
+
+    float moveSpeed() const
+    {
+        return m_moveSpeed;
+    }
+
+    float hyperSpeedFactor() const
+    {
+        return m_hyperSpeedFactor;
     }
 
 public slots:
@@ -205,6 +229,33 @@ public slots:
         emit nearPlaneChanged(arg);
     }
 
+    void setHyperSpeed(bool arg)
+    {
+        if (m_hyperSpeed == arg)
+            return;
+
+        m_hyperSpeed = arg;
+        emit hyperSpeedChanged(arg);
+    }
+
+    void setMoveSpeed(float arg)
+    {
+        if (m_moveSpeed == arg)
+            return;
+
+        m_moveSpeed = arg;
+        emit moveSpeedChanged(arg);
+    }
+
+    void setHyperSpeedFactor(float arg)
+    {
+        if (m_hyperSpeedFactor == arg)
+            return;
+
+        m_hyperSpeedFactor = arg;
+        emit hyperSpeedFactorChanged(arg);
+    }
+
 signals:
     void positionChanged(QVector3D arg);
     void tiltChanged(float arg);
@@ -215,6 +266,9 @@ signals:
     void fieldOfViewChanged(float arg);
     void farPlaneChanged(float arg);
     void nearPlaneChanged(float arg);
+    void hyperSpeedChanged(bool arg);
+    void moveSpeedChanged(float arg);
+    void hyperSpeedFactorChanged(float arg);
 };
 
 #endif // CAMERA_H

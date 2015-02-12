@@ -13,9 +13,6 @@ Item {
     property bool _ignoreMouseMoverMove: false
     property bool _firstMove: true
     property bool _secondMove: false
-    property bool _hyperSpeed: false
-    property real moveSpeed: 3.0
-    property real hyperSpeedFactor: 4.0
     property real mouseSensitivity: 0.03
     property real aspectRatio: width/height
 
@@ -151,9 +148,9 @@ Item {
 
     Keys.onPressed: {
         if(event.modifiers & Qt.ShiftModifier) {
-            _hyperSpeed = true
+            camera.hyperSpeed = true
         } else {
-            _hyperSpeed = false
+            camera.hyperSpeed = false
         }
         if(event.key === Qt.Key_Escape) {
             deactivate()
@@ -220,9 +217,9 @@ Item {
             var rightVector = camera.rightVector
             var translation = Qt.vector3d(0,0,0);
 
-            var speed = moveSpeed;
-            if(_hyperSpeed) {
-                speed *= hyperSpeedFactor;
+            var speed = camera.moveSpeed;
+            if(camera.hyperSpeed) {
+                speed *= camera.hyperSpeedFactor;
             }
 
             // Decide what to do based on velocity

@@ -48,7 +48,10 @@ Camera::Camera(QObject *parent) :
     m_fixedPosition(false),
     m_fieldOfView(65.0),
     m_farPlane(2000.0),
-    m_nearPlane(0.1)
+    m_nearPlane(0.1),
+    m_hyperSpeed(false),
+    m_moveSpeed(3.0),
+    m_hyperSpeedFactor(4.0)
 {
 
 
