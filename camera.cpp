@@ -43,11 +43,11 @@ void Camera::setModelViewMatrix(const QMatrix4x4 &modelViewMatrix)
 void Camera::timerTicked()
 {
 
-    qint64 currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
-    qint64 timeDifference = currentTime-m_state.lastTime;
+    long currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
+    long timeDifference = currentTime-m_lastTime;
     float timeDifferenceSeconds = float(timeDifference)/1000.0;
 
-    m_state.lastTime = currentTime;
+    m_lastTime = currentTime;
 
     if(timeDifference > 1000) {
         return;
@@ -62,24 +62,24 @@ void Camera::timerTicked()
     }
 
     // Decide what to do based on velocity
-    if(m_state.forward) {
-        m_state.forwardSpeed = speed*timeDifferenceSeconds;
-    } else if(m_state.backward) {
-        m_state.forwardSpeed = -speed*timeDifferenceSeconds;
+    if(m_movingForward) {
+        m_forwardSpeed = speed*timeDifferenceSeconds;
+    } else if(m_movingBackward) {
+        m_forwardSpeed = -speed*timeDifferenceSeconds;
     } else {
-        m_state.forwardSpeed = 0;
+        m_forwardSpeed = 0;
     }
 
-    if(m_state.right) {
-        m_state.rightSpeed = speed*timeDifferenceSeconds;
-    } else if(m_state.left) {
-        m_state.rightSpeed = -speed*timeDifferenceSeconds;
+    if(m_movingRight) {
+        m_rightSpeed = speed*timeDifferenceSeconds;
+    } else if(m_movingLeft) {
+        m_rightSpeed = -speed*timeDifferenceSeconds;
     } else {
-        m_state.rightSpeed = 0;
+        m_rightSpeed = 0;
     }
 
-    translation += forwardVector*m_state.forwardSpeed;
-    translation += rightVector*m_state.rightSpeed;
+    translation += forwardVector*m_forwardSpeed;
+    translation += rightVector*m_rightSpeed;
     setPosition(m_position + translation);
 }
 
@@ -108,6 +108,13 @@ Camera::Camera(QObject *parent) :
     m_hyperSpeed(false),
     m_moveSpeed(3.0),
     m_hyperSpeedFactor(4.0),
+    m_movingForward(false),
+    m_movingBackward(false),
+    m_movingLeft(false),
+    m_movingRight(false),
+    m_forwardSpeed(0),
+    m_rightSpeed(0),
+    m_lastTime(0),
     m_mouseSensitivity(0.03)
 {
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(timerTicked()));

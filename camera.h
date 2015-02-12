@@ -8,18 +8,6 @@
 #include <QSize>
 #include <QTimer>
 
-struct CameraState
-{
-public:
-    bool forward = false;
-    bool backward = false;
-    bool left = false;
-    bool right = false;
-    float forwardSpeed = 0.0;
-    float rightSpeed = 0.0;
-    qint64 lastTime = 0.0;
-};
-
 class Camera : public QObject
 {
     Q_OBJECT
@@ -74,7 +62,14 @@ private:
 
     QTimer m_timer;
 
-    CameraState m_state;
+    bool m_movingForward;
+    bool m_movingBackward;
+    bool m_movingLeft;
+    bool m_movingRight;
+    float m_forwardSpeed;
+    float m_rightSpeed;
+    long m_lastTime;
+
     float m_mouseSensitivity;
 
 public:
@@ -172,22 +167,22 @@ public:
 
     bool movingForward() const
     {
-        return m_state.forward;
+        return m_movingForward;
     }
 
     bool movingBackward() const
     {
-        return m_state.backward;
+        return m_movingBackward;
     }
 
     bool movingRight() const
     {
-        return m_state.right;
+        return m_movingRight;
     }
 
     bool movingLeft() const
     {
-        return m_state.left;
+        return m_movingLeft;
     }
 
     float mouseSensitivity() const
@@ -307,22 +302,22 @@ public slots:
 
     void setMovingForward(bool arg)
     {
-        m_state.forward = arg;
+        m_movingForward = arg;
     }
 
     void setMovingBackward(bool arg)
     {
-        m_state.backward = arg;
+        m_movingBackward = arg;
     }
 
     void setMovingRight(bool arg)
     {
-        m_state.right = arg;
+        m_movingRight = arg;
     }
 
     void setMovingLeft(bool arg)
     {
-        m_state.left = arg;
+        m_movingLeft = arg;
     }
 
     void mouseMoved(float deltaX, float deltaY);
