@@ -124,6 +124,7 @@ Item {
             if(camera.tilt - mouseDeltaY > -90 && camera.tilt - mouseDeltaY < 90) {
                 camera.tilt -= mouseDeltaY
             }
+
             camera.pan -= mouseDeltaX
             _ignoreMouseMoverMove = true;
             mouseMover.move(controllerRoot.width / 2, controllerRoot.height / 2);
@@ -210,21 +211,9 @@ Item {
                 return;
             }
 
-            var degToRad = Math.PI/180;
-            var xF = Math.cos(camera.pan*degToRad)*Math.cos(camera.tilt*degToRad);
-            var yF = Math.sin(camera.pan*degToRad)*Math.cos(camera.tilt*degToRad);
-            var zF = Math.sin(camera.tilt*degToRad);
-
-            var xUp = -zF*xF/Math.sqrt(xF*xF+yF*yF);
-            var yUp = -zF*yF/Math.sqrt(xF*xF+yF*yF);
-            var zUp = Math.sqrt(xF*xF+yF*yF);
-
-            var forwardVector = Qt.vector3d(xF,yF,zF);
-            var upVector = Qt.vector3d(xUp, yUp, zUp)
-            var a = forwardVector;
-            var b = upVector;
-            var rightVector = Qt.vector3d(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x); // cross product, a x b
-            rightVector = rightVector.normalized();
+            var forwardVector = camera.forwardVector
+            var upVector = camera.upVector
+            var rightVector = camera.rightVector
             var translation = Qt.vector3d(0,0,0);
 
             var speed = moveSpeed;

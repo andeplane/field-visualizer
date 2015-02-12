@@ -11,6 +11,10 @@ class Camera : public QObject
     Q_PROPERTY(float tilt READ tilt WRITE setTilt NOTIFY tiltChanged)
     Q_PROPERTY(float pan READ pan WRITE setPan NOTIFY panChanged)
     Q_PROPERTY(float roll READ roll WRITE setRoll NOTIFY rollChanged)
+    Q_PROPERTY(QVector3D forwardVector READ forwardVector)
+    Q_PROPERTY(QVector3D rightVector READ rightVector)
+    Q_PROPERTY(QVector3D upVector READ upVector)
+
 private:
     QVector3D m_position;
 
@@ -40,6 +44,32 @@ public:
     float roll() const
     {
         return m_roll;
+    }
+
+    QVector3D forwardVector()
+    {
+        float degToRad = M_PI/180.0;
+        float x = cos(m_pan*degToRad)*cos(m_tilt*degToRad);
+        float y = sin(m_pan*degToRad)*cos(m_tilt*degToRad);
+        float z = sin(m_tilt*degToRad);
+        return QVector3D(x,y,z);
+    }
+
+
+    QVector3D upVector()
+    {
+        QVector3D forwardVector = this->forwardVector();
+        float x = -forwardVector.z()*forwardVector.x()/sqrt(forwardVector.x()*forwardVector.x() + forwardVector.y()*forwardVector.y());
+        float y = -forwardVector.z()*forwardVector.y()/sqrt(forwardVector.x()*forwardVector.x() + forwardVector.y()*forwardVector.y());
+        float z = sqrt(forwardVector.x()*forwardVector.x() + forwardVector.y()*forwardVector.y());
+        return QVector3D(x,y,z);
+    }
+
+    QVector3D rightVector()
+    {
+        QVector3D forwardVector = this->forwardVector();
+        QVector3D upVector = this->upVector();
+        return QVector3D::crossProduct(forwardVector, upVector);
     }
 
 public slots:
