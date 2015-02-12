@@ -50,16 +50,8 @@
 #include <QMutex>
 #include "simulator.h"
 #include "renderer.h"
+#include "camera.h"
 namespace CompPhys {
-
-struct Camera
-{
-public:
-    double tilt;
-    double pan;
-    double roll;
-    QVector3D position;
-};
 
 class Controller : public QQuickFramebufferObject
 {
@@ -69,7 +61,7 @@ class Controller : public QQuickFramebufferObject
     Q_PROPERTY(bool renderScalarField READ renderScalarField WRITE setRenderScalarField NOTIFY renderScalarFieldChanged)
     Q_PROPERTY(int gridSizeX READ gridSizeX WRITE setGridSizeX NOTIFY gridSizeXChanged)
     Q_PROPERTY(int gridSizeY READ gridSizeY WRITE setGridSizeY NOTIFY gridSizeYChanged)
-    Q_PROPERTY(QVector3D cameraPosition READ cameraPosition WRITE setCameraPosition)
+    Q_PROPERTY(Camera* camera READ camera WRITE setCamera NOTIFY cameraChanged)
 public:
     Controller();
     ~Controller();
@@ -99,8 +91,8 @@ public:
         return m_gridSizeY;
     }
 
-    Camera camera() const;
-    void setCamera(const Camera &camera);
+    Camera *camera() const;
+    void setCamera(Camera *camera);
 
 public slots:
     void setRunning(bool arg);
@@ -136,14 +128,6 @@ public slots:
         emit gridSizeYChanged(arg);
     }
 
-    void tiltPanRollEye(float tilt, float pan, float roll);
-    QVector3D cameraPosition();
-
-    void setCameraPosition(QVector3D arg)
-    {
-        m_camera.position = arg;
-    }
-
 private slots:
     void finalizeStep();
 
@@ -155,6 +139,8 @@ signals:
 
     void gridSizeXChanged(int arg);
     void gridSizeYChanged(int arg);
+
+    void cameraChanged(Camera* arg);
 
 private slots:
     void handleWindowChanged(QQuickWindow *win);
@@ -176,7 +162,7 @@ private:
     QMutex m_simulatorOutputMutex;
     QMutex m_simulatorRunningMutex;
     QThread m_simulatorWorker;
-    Camera m_camera;
+    Camera *m_camera;
     friend class CompPhys::Renderer;
     bool m_renderScalarField;
     int m_gridSizeX;

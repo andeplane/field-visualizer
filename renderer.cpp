@@ -22,8 +22,8 @@ void Renderer::synchronize(QQuickFramebufferObject* item)
     }
 
     resetProjection();
-    setModelViewMatrices(controller->camera().position, controller->camera().tilt, controller->camera().pan, controller->camera().roll);
-    m_cameraPosition = controller->camera().position;
+    setModelViewMatrices(controller->camera()->position(), controller->camera()->tilt(), controller->camera()->pan(), controller->camera()->roll());
+    m_cameraPosition = controller->camera()->position();
 
     if(controller->simulatorOutputDirty()) {
         controller->m_simulatorOutputMutex.lock();

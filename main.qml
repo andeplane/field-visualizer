@@ -6,7 +6,7 @@ import QtQuick.Layouts 1.1
 import QtQuick.Controls.Styles 1.1
 import Controller 1.0
 import MouseMover 1.0
-
+import Camera 1.0
 Item {
     id: controllerRoot
     property bool activateOnPressed: true
@@ -16,9 +16,6 @@ Item {
     property bool _hyperSpeed: false
     property real moveSpeed: 3.0
     property real hyperSpeedFactor: 4.0
-    property real  tilt: 0
-    property real  pan: 0
-    property real  roll: 0
     property real mouseSensitivity: 0.03
     property real aspectRatio: width/height
     property bool applicationActive: {
@@ -64,6 +61,10 @@ Item {
         gridSizeX: 1536
         gridSizeY: 1536
         running: true
+
+        camera: Camera {
+            id: camera
+        }
 
         Timer {
             id: timer
@@ -119,12 +120,11 @@ Item {
             var mouseDeltaY = mouse.y - controllerRoot.height / 2;
             mouseDeltaX *= mouseSensitivity;
             mouseDeltaY *= mouseSensitivity;
-            if(tilt - mouseDeltaY > -90 && tilt - mouseDeltaY < 90) {
-                tilt -= mouseDeltaY
+
+            if(camera.tilt - mouseDeltaY > -90 && camera.tilt - mouseDeltaY < 90) {
+                camera.tilt -= mouseDeltaY
             }
-            pan -= mouseDeltaX
-            roll += 0
-            controller.tiltPanRollEye(tilt, pan, roll);
+            camera.pan -= mouseDeltaX
             _ignoreMouseMoverMove = true;
             mouseMover.move(controllerRoot.width / 2, controllerRoot.height / 2);
             _ignoreMouseMoverMove = false;
@@ -211,9 +211,9 @@ Item {
             }
 
             var degToRad = Math.PI/180;
-            var xF = Math.cos(pan*degToRad)*Math.cos(tilt*degToRad);
-            var yF = Math.sin(pan*degToRad)*Math.cos(tilt*degToRad);
-            var zF = Math.sin(tilt*degToRad);
+            var xF = Math.cos(camera.pan*degToRad)*Math.cos(camera.tilt*degToRad);
+            var yF = Math.sin(camera.pan*degToRad)*Math.cos(camera.tilt*degToRad);
+            var zF = Math.sin(camera.tilt*degToRad);
 
             var xUp = -zF*xF/Math.sqrt(xF*xF+yF*yF);
             var yUp = -zF*yF/Math.sqrt(xF*xF+yF*yF);
@@ -251,14 +251,12 @@ Item {
 
             translation = translation.plus(forwardVector.times(forwardSpeed))
             translation = translation.plus(rightVector.times(rightSpeed))
-            var cameraPos = controller.cameraPosition;
-//            console.log("Tilt: "+tilt+"   pan: "+pan)
+//              console.log("Tilt: "+tilt+"   pan: "+pan)
 //            console.log("Forward: "+forwardVector)
 //            console.log("Camera: "+cameraPos)
-            cameraPos = cameraPos.plus(translation)
-            controller.setCameraPosition(cameraPos);
-            labelX.text = "x: "+cameraPos.x.toFixed(3)
-            labelY.text = "y: "+cameraPos.y.toFixed(3)
+            camera.position = camera.position.plus(translation)
+            labelX.text = "x: "+camera.position.x.toFixed(3)
+            labelY.text = "y: "+camera.position.y.toFixed(3)
         }
     }
 
@@ -325,7 +323,7 @@ Item {
             transform: Rotation {
                 origin.x: 0
                 origin.y: 0
-                angle: -pan
+                angle: -camera.pan
             }
         }
     }

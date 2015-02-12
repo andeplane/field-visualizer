@@ -71,10 +71,6 @@ Controller::Controller()
     connect(&m_simulator, &Simulator::stepCompleted, this, &Controller::finalizeStep);
     m_simulatorWorker.start();
     m_timer.start();
-    m_camera.pan = 0;
-    m_camera.roll = 0;
-    m_camera.tilt = 0;
-    m_camera.position = QVector3D(0.0, 0.0, 5.0);
 }
 
 Controller::~Controller()
@@ -139,12 +135,12 @@ void Controller::handleWindowChanged(QQuickWindow *win)
         win->setClearBeforeRendering(false);
     }
 }
-Camera Controller::camera() const
+Camera *Controller::camera() const
 {
     return m_camera;
 }
 
-void Controller::setCamera(const Camera &camera)
+void Controller::setCamera(Camera *camera)
 {
     m_camera = camera;
 }
@@ -165,18 +161,6 @@ void Controller::setPreviousStepCompleted(bool arg)
 void Controller::setSimulatorOutputDirty(bool arg)
 {
     m_simulatorOutputDirty = arg;
-}
-
-void Controller::tiltPanRollEye(float tilt, float pan, float roll)
-{
-    m_camera.tilt = tilt;
-    m_camera.pan = pan;
-    m_camera.roll = roll;
-}
-
-QVector3D Controller::cameraPosition()
-{
-    return m_camera.position;
 }
 
 bool Controller::running() const

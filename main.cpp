@@ -10,7 +10,7 @@
 #include <iostream>
 #include <QFontDatabase>
 #include "mousemover.h"
-
+#include "camera.h"
 #include "controller.h"
 using namespace std;
 
@@ -22,6 +22,7 @@ int main (int argc, char * argv [])
 {
     qmlRegisterType<CompPhys::Controller>("Controller", 1, 0, "Controller");
     qmlRegisterType<MouseMover>("MouseMover", 1, 0, "MouseMover");
+    qmlRegisterType<Camera>("Camera", 1, 0, "Camera");
 
     QGuiApplication app(argc, argv);
     QQuickView view;

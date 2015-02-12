@@ -70,6 +70,7 @@ void ScalarField::render(const QMatrix4x4 &modelViewProjectionMatrix, QVector3D 
     createShaderProgram();
     float lightFalloffDistance = 500.0;
     m_program->bind();
+
     m_program->setUniformValue("modelViewProjectionMatrix", modelViewProjectionMatrix);
     m_program->setUniformValue("cameraPosition", cameraPosition);
     m_program->setUniformValue("time", time);

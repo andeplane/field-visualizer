@@ -10,7 +10,8 @@ SOURCES += main.cpp \
     simulator.cpp \
     random.cpp \
     scalarfield.cpp \
-    mousemover.cpp
+    mousemover.cpp \
+    camera.cpp
 
 RESOURCES += qml.qrc
 
@@ -26,6 +27,7 @@ HEADERS += \
     simulator.h \
     random.h \
     scalarfield.h \
-    mousemover.h
+    mousemover.h \
+    camera.h
 
 DISTFILES +=
