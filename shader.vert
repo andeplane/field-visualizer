@@ -1,12 +1,14 @@
-#define scaling 1.0
+#define scaling 0.5
 
 float height(float x, float y, float t) {
-    return sin(x)*cos(y);
+    return sin(x)*cos(y)*cos(0.001*x*y*t);
 }
 
 vec3 normal(float x, float y, float t) {
-    float dh_dx = cos(x)*cos(y);
-    float dh_dy = -sin(x)*sin(y);
+    float delta = 0.01;
+    float oneOverTwoDelta = 50.0;
+    float dh_dx = (height(x-delta,y,t) - height(x+delta, y, t))*oneOverTwoDelta;
+    float dh_dy = (height(x,y-delta,t) - height(x, y+delta, t))*oneOverTwoDelta;
     lowp vec3 t1 = normalize(vec3(1.0, 0.0, dh_dx));
     lowp vec3 t2 = normalize(vec3(0.0, 1.0, dh_dy));
     return cross(t1,t2);
