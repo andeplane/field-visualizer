@@ -265,6 +265,7 @@ Item {
             anchors.leftMargin: 5;
             anchors.topMargin: 2;
             opacity: 1
+            text: "x: "+camera.position.x.toFixed(3)
         }
 
         Label {
@@ -274,6 +275,7 @@ Item {
             anchors.leftMargin: labelX.anchors.leftMargin
             anchors.top: labelX.bottom
             opacity: 1
+            text: "y: "+camera.position.y.toFixed(3)
         }
     }
 

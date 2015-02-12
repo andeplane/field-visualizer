@@ -81,8 +81,6 @@ void Camera::timerTicked()
     translation += forwardVector*m_state.forwardSpeed;
     translation += rightVector*m_state.rightSpeed;
     setPosition(m_position + translation);
-//    labelX.text = "x: "+camera.position.x.toFixed(3)
-//    labelY.text = "y: "+camera.position.y.toFixed(3)
 }
 
 Camera::Camera(QObject *parent) :
