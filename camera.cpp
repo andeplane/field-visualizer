@@ -83,6 +83,18 @@ void Camera::timerTicked()
     setPosition(m_position + translation);
 }
 
+void Camera::mouseMoved(float deltaX, float deltaY)
+{
+    deltaX *= m_mouseSensitivity;
+    deltaY *= m_mouseSensitivity;
+
+    if(m_tilt - deltaY > -90 && m_tilt - deltaY < 90) {
+        m_tilt -= deltaY;
+    }
+
+    m_pan -= deltaX;
+}
+
 Camera::Camera(QObject *parent) :
     QObject(parent),
     m_position(QVector3D(0,0,5)),
@@ -95,7 +107,8 @@ Camera::Camera(QObject *parent) :
     m_nearPlane(0.1),
     m_hyperSpeed(false),
     m_moveSpeed(3.0),
-    m_hyperSpeedFactor(4.0)
+    m_hyperSpeedFactor(4.0),
+    m_mouseSensitivity(0.03)
 {
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(timerTicked()));
     m_timer.setInterval(16);

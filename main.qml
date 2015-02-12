@@ -13,7 +13,6 @@ Item {
     property bool _ignoreMouseMoverMove: false
     property bool _firstMove: true
     property bool _secondMove: false
-    property real mouseSensitivity: 0.03
     property real aspectRatio: width/height
 
     width: 1920
@@ -119,14 +118,8 @@ Item {
             }
             var mouseDeltaX = mouse.x - controllerRoot.width / 2;
             var mouseDeltaY = mouse.y - controllerRoot.height / 2;
-            mouseDeltaX *= mouseSensitivity;
-            mouseDeltaY *= mouseSensitivity;
+            camera.mouseMoved(mouseDeltaX, mouseDeltaY)
 
-            if(camera.tilt - mouseDeltaY > -90 && camera.tilt - mouseDeltaY < 90) {
-                camera.tilt -= mouseDeltaY
-            }
-
-            camera.pan -= mouseDeltaX
             _ignoreMouseMoverMove = true;
             mouseMover.move(controllerRoot.width / 2, controllerRoot.height / 2);
             _ignoreMouseMoverMove = false;
@@ -190,72 +183,11 @@ Item {
         }
     }
 
-//    Timer {
-//        id: moveTimer
-//        property bool forward: false
-//        property bool backward: false
-//        property bool left: false
-//        property bool right: false
-//        property real forwardSpeed: 0.0
-//        property real rightSpeed: 0.0
-//        property real lastTime: 0
-//        running: true
-//        repeat: true
-//        interval: 16
-
-//        onTriggered: {
-//            var currentTime = Date.now();
-//            var timeDifference = currentTime-lastTime;
-//            timeDifference /= 1000.0;
-//            lastTime = currentTime;
-//            if(timeDifference > 1.0) {
-//                return;
-//            }
-
-//            var forwardVector = camera.forwardVector
-//            var upVector = camera.upVector
-//            var rightVector = camera.rightVector
-//            var translation = Qt.vector3d(0,0,0);
-
-//            var speed = camera.moveSpeed;
-//            if(camera.hyperSpeed) {
-//                speed *= camera.hyperSpeedFactor;
-//            }
-
-//            // Decide what to do based on velocity
-//            if(forward) {
-//                forwardSpeed = speed*timeDifference;
-//            } else if(backward) {
-//                forwardSpeed = -speed*timeDifference;
-//            } else {
-//                forwardSpeed = 0;
-//            }
-
-//            if(right) {
-//                rightSpeed = speed*timeDifference;
-//            } else if(left) {
-//                rightSpeed = -speed*timeDifference;
-//            } else {
-//                rightSpeed = 0;
-//            }
-
-//            translation = translation.plus(forwardVector.times(forwardSpeed))
-//            translation = translation.plus(rightVector.times(rightSpeed))
-////              console.log("Tilt: "+tilt+"   pan: "+pan)
-////            console.log("Forward: "+forwardVector)
-////            console.log("Camera: "+cameraPos)
-//            camera.position = camera.position.plus(translation)
-//            labelX.text = "x: "+camera.position.x.toFixed(3)
-//            labelY.text = "y: "+camera.position.y.toFixed(3)
-//        }
-//    }
-
     Item {
         x: 10
         y: 10
         width: 100
         height: 100
-        // color: "white"
 
         Label {
             id: labelX

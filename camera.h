@@ -42,7 +42,7 @@ class Camera : public QObject
     Q_PROPERTY(bool movingBackward READ movingBackward WRITE setMovingBackward)
     Q_PROPERTY(bool movingRight READ movingRight WRITE setMovingRight)
     Q_PROPERTY(bool movingLeft READ movingLeft WRITE setMovingLeft)
-
+    Q_PROPERTY(float mouseSensitivity READ mouseSensitivity WRITE setMouseSensitivity NOTIFY mouseSensitivityChanged)
 private:
     QVector3D m_position;
 
@@ -75,6 +75,8 @@ private:
     QTimer m_timer;
 
     CameraState m_state;
+    float m_mouseSensitivity;
+
 public:
     explicit Camera(QObject *parent = 0);
     ~Camera();
@@ -186,6 +188,11 @@ public:
     bool movingLeft() const
     {
         return m_state.left;
+    }
+
+    float mouseSensitivity() const
+    {
+        return m_mouseSensitivity;
     }
 
 public slots:
@@ -318,6 +325,17 @@ public slots:
         m_state.left = arg;
     }
 
+    void mouseMoved(float deltaX, float deltaY);
+
+    void setMouseSensitivity(float arg)
+    {
+        if (m_mouseSensitivity == arg)
+            return;
+
+        m_mouseSensitivity = arg;
+        emit mouseSensitivityChanged(arg);
+    }
+
 signals:
     void positionChanged(QVector3D arg);
     void tiltChanged(float arg);
@@ -331,6 +349,7 @@ signals:
     void hyperSpeedChanged(bool arg);
     void moveSpeedChanged(float arg);
     void hyperSpeedFactorChanged(float arg);
+    void mouseSensitivityChanged(float arg);
 };
 
 #endif // CAMERA_H
