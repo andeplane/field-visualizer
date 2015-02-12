@@ -6,6 +6,19 @@
 #include <QVector3D>
 #include <QMatrix4x4>
 #include <QSize>
+#include <QTimer>
+
+struct CameraState
+{
+public:
+    bool forward = false;
+    bool backward = false;
+    bool left = false;
+    bool right = false;
+    float forwardSpeed = 0.0;
+    float rightSpeed = 0.0;
+    qint64 lastTime = 0.0;
+};
 
 class Camera : public QObject
 {
@@ -25,6 +38,10 @@ class Camera : public QObject
     Q_PROPERTY(bool hyperSpeed READ hyperSpeed WRITE setHyperSpeed NOTIFY hyperSpeedChanged)
     Q_PROPERTY(float moveSpeed READ moveSpeed WRITE setMoveSpeed NOTIFY moveSpeedChanged)
     Q_PROPERTY(float hyperSpeedFactor READ hyperSpeedFactor WRITE setHyperSpeedFactor NOTIFY hyperSpeedFactorChanged)
+    Q_PROPERTY(bool movingForward READ movingForward WRITE setMovingForward)
+    Q_PROPERTY(bool movingBackward READ movingBackward WRITE setMovingBackward)
+    Q_PROPERTY(bool movingRight READ movingRight WRITE setMovingRight)
+    Q_PROPERTY(bool movingLeft READ movingLeft WRITE setMovingLeft)
 
 private:
     QVector3D m_position;
@@ -55,6 +72,9 @@ private:
 
     float m_hyperSpeedFactor;
 
+    QTimer m_timer;
+
+    CameraState m_state;
 public:
     explicit Camera(QObject *parent = 0);
     ~Camera();
@@ -146,6 +166,26 @@ public:
     float hyperSpeedFactor() const
     {
         return m_hyperSpeedFactor;
+    }
+
+    bool movingForward() const
+    {
+        return m_state.forward;
+    }
+
+    bool movingBackward() const
+    {
+        return m_state.backward;
+    }
+
+    bool movingRight() const
+    {
+        return m_state.right;
+    }
+
+    bool movingLeft() const
+    {
+        return m_state.left;
     }
 
 public slots:
@@ -254,6 +294,28 @@ public slots:
 
         m_hyperSpeedFactor = arg;
         emit hyperSpeedFactorChanged(arg);
+    }
+
+    void timerTicked();
+
+    void setMovingForward(bool arg)
+    {
+        m_state.forward = arg;
+    }
+
+    void setMovingBackward(bool arg)
+    {
+        m_state.backward = arg;
+    }
+
+    void setMovingRight(bool arg)
+    {
+        m_state.right = arg;
+    }
+
+    void setMovingLeft(bool arg)
+    {
+        m_state.left = arg;
     }
 
 signals:

@@ -157,17 +157,17 @@ Item {
         }
         if(!event.isAutoRepeat) {
             if(event.key === Qt.Key_W) {
-                moveTimer.forward = true
+                camera.setMovingForward(true)
                 event.accepted = true
             }
             if(event.key === Qt.Key_S) {
-                moveTimer.backward = true
+                camera.setMovingBackward(true)
             }
             if(event.key === Qt.Key_A) {
-                moveTimer.left = true
+                camera.setMovingLeft(true)
             }
             if(event.key === Qt.Key_D) {
-                moveTimer.right = true
+                camera.setMovingRight(true)
             }
         }
     }
@@ -175,80 +175,80 @@ Item {
     Keys.onReleased: {
         if(!event.isAutoRepeat) {
             if(event.key === Qt.Key_W) {
-                moveTimer.forward = false
+                camera.setMovingForward(false)
                 event.accepted = true
             }
             if(event.key === Qt.Key_S) {
-                moveTimer.backward = false
+                camera.setMovingBackward(false)
             }
             if(event.key === Qt.Key_A) {
-                moveTimer.left = false
+                camera.setMovingLeft(false)
             }
             if(event.key === Qt.Key_D) {
-                moveTimer.right = false
+                camera.setMovingRight(false)
             }
         }
     }
 
-    Timer {
-        id: moveTimer
-        property bool forward: false
-        property bool backward: false
-        property bool left: false
-        property bool right: false
-        property real forwardSpeed: 0.0
-        property real rightSpeed: 0.0
-        property real lastTime: 0
-        running: true
-        repeat: true
-        interval: 16
+//    Timer {
+//        id: moveTimer
+//        property bool forward: false
+//        property bool backward: false
+//        property bool left: false
+//        property bool right: false
+//        property real forwardSpeed: 0.0
+//        property real rightSpeed: 0.0
+//        property real lastTime: 0
+//        running: true
+//        repeat: true
+//        interval: 16
 
-        onTriggered: {
-            var currentTime = Date.now();
-            var timeDifference = currentTime-lastTime;
-            timeDifference /= 1000.0;
-            lastTime = currentTime;
-            if(timeDifference > 1.0) {
-                return;
-            }
+//        onTriggered: {
+//            var currentTime = Date.now();
+//            var timeDifference = currentTime-lastTime;
+//            timeDifference /= 1000.0;
+//            lastTime = currentTime;
+//            if(timeDifference > 1.0) {
+//                return;
+//            }
 
-            var forwardVector = camera.forwardVector
-            var upVector = camera.upVector
-            var rightVector = camera.rightVector
-            var translation = Qt.vector3d(0,0,0);
+//            var forwardVector = camera.forwardVector
+//            var upVector = camera.upVector
+//            var rightVector = camera.rightVector
+//            var translation = Qt.vector3d(0,0,0);
 
-            var speed = camera.moveSpeed;
-            if(camera.hyperSpeed) {
-                speed *= camera.hyperSpeedFactor;
-            }
+//            var speed = camera.moveSpeed;
+//            if(camera.hyperSpeed) {
+//                speed *= camera.hyperSpeedFactor;
+//            }
 
-            // Decide what to do based on velocity
-            if(forward) {
-                forwardSpeed = speed*timeDifference;
-            } else if(backward) {
-                forwardSpeed = -speed*timeDifference;
-            } else {
-                forwardSpeed = 0;
-            }
+//            // Decide what to do based on velocity
+//            if(forward) {
+//                forwardSpeed = speed*timeDifference;
+//            } else if(backward) {
+//                forwardSpeed = -speed*timeDifference;
+//            } else {
+//                forwardSpeed = 0;
+//            }
 
-            if(right) {
-                rightSpeed = speed*timeDifference;
-            } else if(left) {
-                rightSpeed = -speed*timeDifference;
-            } else {
-                rightSpeed = 0;
-            }
+//            if(right) {
+//                rightSpeed = speed*timeDifference;
+//            } else if(left) {
+//                rightSpeed = -speed*timeDifference;
+//            } else {
+//                rightSpeed = 0;
+//            }
 
-            translation = translation.plus(forwardVector.times(forwardSpeed))
-            translation = translation.plus(rightVector.times(rightSpeed))
-//              console.log("Tilt: "+tilt+"   pan: "+pan)
-//            console.log("Forward: "+forwardVector)
-//            console.log("Camera: "+cameraPos)
-            camera.position = camera.position.plus(translation)
-            labelX.text = "x: "+camera.position.x.toFixed(3)
-            labelY.text = "y: "+camera.position.y.toFixed(3)
-        }
-    }
+//            translation = translation.plus(forwardVector.times(forwardSpeed))
+//            translation = translation.plus(rightVector.times(rightSpeed))
+////              console.log("Tilt: "+tilt+"   pan: "+pan)
+////            console.log("Forward: "+forwardVector)
+////            console.log("Camera: "+cameraPos)
+//            camera.position = camera.position.plus(translation)
+//            labelX.text = "x: "+camera.position.x.toFixed(3)
+//            labelY.text = "y: "+camera.position.y.toFixed(3)
+//        }
+//    }
 
     Item {
         x: 10

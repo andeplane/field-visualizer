@@ -1,5 +1,5 @@
 #include "camera.h"
-
+#include <QDateTime>
 
 QMatrix4x4 Camera::projectionMatrix()
 {
@@ -39,6 +39,52 @@ void Camera::setModelViewMatrix(const QMatrix4x4 &modelViewMatrix)
 {
     m_modelViewMatrix = modelViewMatrix;
 }
+
+void Camera::timerTicked()
+{
+
+    qint64 currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
+    qint64 timeDifference = currentTime-m_state.lastTime;
+    float timeDifferenceSeconds = float(timeDifference)/1000.0;
+
+    m_state.lastTime = currentTime;
+
+    if(timeDifference > 1000) {
+        return;
+    }
+
+    QVector3D forwardVector = this->forwardVector();
+    QVector3D rightVector = this->rightVector();
+    QVector3D translation;
+    float speed = m_moveSpeed;
+    if(m_hyperSpeed) {
+        speed *= m_hyperSpeedFactor;
+    }
+
+    // Decide what to do based on velocity
+    if(m_state.forward) {
+        m_state.forwardSpeed = speed*timeDifferenceSeconds;
+    } else if(m_state.backward) {
+        m_state.forwardSpeed = -speed*timeDifferenceSeconds;
+    } else {
+        m_state.forwardSpeed = 0;
+    }
+
+    if(m_state.right) {
+        m_state.rightSpeed = speed*timeDifferenceSeconds;
+    } else if(m_state.left) {
+        m_state.rightSpeed = -speed*timeDifferenceSeconds;
+    } else {
+        m_state.rightSpeed = 0;
+    }
+
+    translation += forwardVector*m_state.forwardSpeed;
+    translation += rightVector*m_state.rightSpeed;
+    setPosition(m_position + translation);
+//    labelX.text = "x: "+camera.position.x.toFixed(3)
+//    labelY.text = "y: "+camera.position.y.toFixed(3)
+}
+
 Camera::Camera(QObject *parent) :
     QObject(parent),
     m_position(QVector3D(0,0,5)),
@@ -53,7 +99,9 @@ Camera::Camera(QObject *parent) :
     m_moveSpeed(3.0),
     m_hyperSpeedFactor(4.0)
 {
-
+    connect(&m_timer, SIGNAL(timeout()), this, SLOT(timerTicked()));
+    m_timer.setInterval(16);
+    m_timer.start(16);
 
 }
 
