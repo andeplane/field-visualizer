@@ -21,8 +21,8 @@ void Renderer::synchronize(QQuickFramebufferObject* item)
         return;
     }
 
-    resetProjection();
-    setModelViewMatrices(controller->camera()->position(), controller->camera()->tilt(), controller->camera()->pan(), controller->camera()->roll());
+    m_projectionMatrix = controller->camera()->projectionMatrix();
+    m_modelViewMatrix = controller->camera()->modelViewMatrix();
     m_cameraPosition = controller->camera()->position();
 
     if(controller->simulatorOutputDirty()) {
@@ -55,19 +55,6 @@ void Renderer::render()
     m_time+=1e-2;
 }
 
-void Renderer::resetProjection()
-{
-    // Calculate aspect ratio
-    qreal aspect = qreal(m_viewportSize.width()) / qreal(m_viewportSize.height() ? m_viewportSize.height() : 1);
-    // Set near plane to 3.0, far plane to 7.0, field of view 65 degrees
-    const qreal zNear = 0.1, zFar = 2000.0, fov = 65.0;
-
-    // Reset projection
-    m_projectionMatrix.setToIdentity();
-
-    // Set perspective projection
-    m_projectionMatrix.perspective(fov, aspect, zNear, zFar);
-}
 QSize Renderer::viewportSize() const
 {
     return m_viewportSize;
@@ -76,15 +63,6 @@ QSize Renderer::viewportSize() const
 void Renderer::setViewportSize(const QSize &viewportSize)
 {
     m_viewportSize = viewportSize;
-}
-
-
-void Renderer::setModelViewMatrices(QVector3D position, double tilt, double pan, double roll)
-{
-    m_modelViewMatrix.setToIdentity();
-    m_modelViewMatrix.rotate(90, 1, 0, 0);
-    m_modelViewMatrix.rotate(tilt, 1, 0, 0);
-    m_modelViewMatrix.rotate(pan, 0, 0, 1);
 }
 
 Renderer::Renderer() :

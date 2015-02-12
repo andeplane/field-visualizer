@@ -1,8 +1,11 @@
 #ifndef CAMERA_H
 #define CAMERA_H
+#define DEGTORAD M_PI/180.0
 
 #include <QObject>
 #include <QVector3D>
+#include <QMatrix4x4>
+#include <QSize>
 
 class Camera : public QObject
 {
@@ -11,9 +14,14 @@ class Camera : public QObject
     Q_PROPERTY(float tilt READ tilt WRITE setTilt NOTIFY tiltChanged)
     Q_PROPERTY(float pan READ pan WRITE setPan NOTIFY panChanged)
     Q_PROPERTY(float roll READ roll WRITE setRoll NOTIFY rollChanged)
+    Q_PROPERTY(QSize viewportSize READ viewportSize WRITE setViewportSize NOTIFY viewportSizeChanged)
     Q_PROPERTY(QVector3D forwardVector READ forwardVector)
     Q_PROPERTY(QVector3D rightVector READ rightVector)
     Q_PROPERTY(QVector3D upVector READ upVector)
+    Q_PROPERTY(bool fixedPosition READ fixedPosition WRITE setFixedPosition NOTIFY fixedPositionChanged)
+    Q_PROPERTY(float nearPlane READ nearPlane WRITE setNearPlane NOTIFY nearPlaneChanged)
+    Q_PROPERTY(float farPlane READ farPlane WRITE setFarPlane NOTIFY farPlaneChanged)
+    Q_PROPERTY(float fieldOfView READ fieldOfView WRITE setFieldOfView NOTIFY fieldOfViewChanged)
 
 private:
     QVector3D m_position;
@@ -23,6 +31,20 @@ private:
     float m_pan;
 
     float m_roll;
+
+    QMatrix4x4 m_projectionMatrix;
+
+    QMatrix4x4 m_modelViewMatrix;
+
+    bool m_fixedPosition;
+
+    QSize m_viewportSize;
+
+    float m_fieldOfView;
+
+    float m_farPlane;
+
+    float m_nearPlane;
 
 public:
     explicit Camera(QObject *parent = 0);
@@ -48,10 +70,9 @@ public:
 
     QVector3D forwardVector()
     {
-        float degToRad = M_PI/180.0;
-        float x = cos(m_pan*degToRad)*cos(m_tilt*degToRad);
-        float y = sin(m_pan*degToRad)*cos(m_tilt*degToRad);
-        float z = sin(m_tilt*degToRad);
+        float x = cos(m_pan*DEGTORAD)*cos(m_tilt*DEGTORAD);
+        float y = sin(m_pan*DEGTORAD)*cos(m_tilt*DEGTORAD);
+        float z = sin(m_tilt*DEGTORAD);
         return QVector3D(x,y,z);
     }
 
@@ -70,6 +91,37 @@ public:
         QVector3D forwardVector = this->forwardVector();
         QVector3D upVector = this->upVector();
         return QVector3D::crossProduct(forwardVector, upVector);
+    }
+
+    QMatrix4x4 projectionMatrix();
+    void setProjectionMatrix(const QMatrix4x4 &projectionMatrix);
+
+    QMatrix4x4 modelViewMatrix();
+    void setModelViewMatrix(const QMatrix4x4 &modelViewMatrix);
+
+    bool fixedPosition() const
+    {
+        return m_fixedPosition;
+    }
+
+    QSize viewportSize() const
+    {
+        return m_viewportSize;
+    }
+
+    float fieldOfView() const
+    {
+        return m_fieldOfView;
+    }
+
+    float farPlane() const
+    {
+        return m_farPlane;
+    }
+
+    float nearPlane() const
+    {
+        return m_nearPlane;
     }
 
 public slots:
@@ -108,11 +160,61 @@ public slots:
         emit rollChanged(arg);
     }
 
+    void setFixedPosition(bool arg)
+    {
+        if (m_fixedPosition == arg)
+            return;
+
+        m_fixedPosition = arg;
+        emit fixedPositionChanged(arg);
+    }
+
+    void setViewportSize(QSize arg)
+    {
+        if (m_viewportSize == arg)
+            return;
+
+        m_viewportSize = arg;
+        emit viewportSizeChanged(arg);
+    }
+
+    void setFieldOfView(float arg)
+    {
+        if (m_fieldOfView == arg)
+            return;
+
+        m_fieldOfView = arg;
+        emit fieldOfViewChanged(arg);
+    }
+
+    void setFarPlane(float arg)
+    {
+        if (m_farPlane == arg)
+            return;
+
+        m_farPlane = arg;
+        emit farPlaneChanged(arg);
+    }
+
+    void setNearPlane(float arg)
+    {
+        if (m_nearPlane == arg)
+            return;
+
+        m_nearPlane = arg;
+        emit nearPlaneChanged(arg);
+    }
+
 signals:
     void positionChanged(QVector3D arg);
     void tiltChanged(float arg);
     void panChanged(float arg);
     void rollChanged(float arg);
+    void fixedPositionChanged(bool arg);
+    void viewportSizeChanged(QSize arg);
+    void fieldOfViewChanged(float arg);
+    void farPlaneChanged(float arg);
+    void nearPlaneChanged(float arg);
 };
 
 #endif // CAMERA_H

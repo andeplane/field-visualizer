@@ -18,42 +18,10 @@ Item {
     property real hyperSpeedFactor: 4.0
     property real mouseSensitivity: 0.03
     property real aspectRatio: width/height
-    property bool applicationActive: {
-        if(Qt.platform.os === "android" || Qt.platform.os === "ios") {
-            if(Qt.application.state === Qt.ApplicationActive) {
-                return true
-            } else {
-                return false
-            }
-        } else {
-            return true
-        }
-    }
-
 
     width: 1920
     height: 1080
-
     focus: true
-
-    Component.onCompleted: {
-        console.log("Controller started.")
-        console.log("Platform: " + Qt.platform.os)
-    }
-
-    function activate() {
-        controllerRoot.forceActiveFocus()
-        _firstMove = true;
-        _ignoreMouseMoverMove = true;
-        mouseMover.move(controllerRoot.width / 2, controllerRoot.height / 2);
-        mouseMover.showCursor = false
-        _ignoreMouseMoverMove = false;
-    }
-
-    function deactivate() {
-        controllerRoot.focus = false
-        mouseMover.showCursor = true
-    }
 
     Controller {
         id: controller
@@ -64,6 +32,11 @@ Item {
 
         camera: Camera {
             id: camera
+            fixedPosition: true
+            fieldOfView: 65.0
+            nearPlane: 0.1
+            farPlane: 2000.0
+            viewportSize: Qt.size(controllerRoot.width, controllerRoot.height)
         }
 
         Timer {
@@ -87,6 +60,37 @@ Item {
                 lastTime = currentTime
             }
         }
+    }
+
+    property bool applicationActive: {
+        if(Qt.platform.os === "android" || Qt.platform.os === "ios") {
+            if(Qt.application.state === Qt.ApplicationActive) {
+                return true
+            } else {
+                return false
+            }
+        } else {
+            return true
+        }
+    }
+
+    Component.onCompleted: {
+        console.log("Controller started.")
+        console.log("Platform: " + Qt.platform.os)
+    }
+
+    function activate() {
+        controllerRoot.forceActiveFocus()
+        _firstMove = true;
+        _ignoreMouseMoverMove = true;
+        mouseMover.move(controllerRoot.width / 2, controllerRoot.height / 2);
+        mouseMover.showCursor = false
+        _ignoreMouseMoverMove = false;
+    }
+
+    function deactivate() {
+        controllerRoot.focus = false
+        mouseMover.showCursor = true
     }
 
     MouseMover {
