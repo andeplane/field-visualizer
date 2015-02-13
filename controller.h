@@ -130,6 +130,7 @@ public slots:
 
 private slots:
     void finalizeStep();
+    void timerTicked();
 
 signals:
     void runningChanged(bool arg);
@@ -162,6 +163,7 @@ private:
     QMutex m_simulatorOutputMutex;
     QMutex m_simulatorRunningMutex;
     QThread m_simulatorWorker;
+    QTimer m_stepTimer;
     Camera *m_camera;
     friend class CompPhys::Renderer;
     bool m_renderScalarField;

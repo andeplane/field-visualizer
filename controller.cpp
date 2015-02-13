@@ -69,8 +69,11 @@ Controller::Controller()
     m_simulator.moveToThread(&m_simulatorWorker);
     connect(this, &Controller::requestStep, &m_simulator, &Simulator::step);
     connect(&m_simulator, &Simulator::stepCompleted, this, &Controller::finalizeStep);
+    connect(&m_stepTimer, SIGNAL(timeout()), this, SLOT(timerTicked()));
+    m_stepTimer.setInterval(16);
     m_simulatorWorker.start();
     m_timer.start();
+    m_stepTimer.start();
 }
 
 Controller::~Controller()
@@ -123,6 +126,11 @@ void Controller::finalizeStep()
         m_lastStepWasBlocked = false;
         step();
     }
+}
+
+void Controller::timerTicked()
+{
+    step();
 }
 
 void Controller::handleWindowChanged(QQuickWindow *win)

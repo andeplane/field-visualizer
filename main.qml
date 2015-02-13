@@ -34,28 +34,6 @@ Item {
             farPlane: 2000.0
             viewportSize: Qt.size(controllerRoot.width, controllerRoot.height)
         }
-
-        Timer {
-            id: timer
-            property real lastTime: Date.now()
-            property real lastSampleTime: Date.now()
-            running: controller.running && controllerRoot.applicationActive
-            repeat: true
-            interval: 1
-            onTriggered: {
-                if(!controller.previousStepCompleted) {
-                    return
-                }
-
-                var currentTime = Date.now()
-                var dt = currentTime - lastTime
-                dt /= 1000
-                controller.step(dt)
-
-                var sampleTimeDifference = (currentTime - lastSampleTime)/1000
-                lastTime = currentTime
-            }
-        }
     }
 
     property bool applicationActive: {
