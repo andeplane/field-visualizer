@@ -3,5 +3,8 @@
         <file>main.qml</file>
         <file>shader.vert</file>
         <file>shader.frag</file>
+        <file>CameraController.qml</file>
+        <file>CoordinateLabels.qml</file>
+        <file>CoordinateAxes.qml</file>
     </qresource>
 </RCC>

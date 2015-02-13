@@ -29,7 +29,6 @@ vec3 normal(float x, float y, float t) {
     return cross(t1,t2);
 }
 
-
 void main() {
     float x = scaling*(a_position.x - cameraPosition.y);
     float y = scaling*(a_position.y - cameraPosition.x);

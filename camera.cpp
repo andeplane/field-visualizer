@@ -28,7 +28,10 @@ QMatrix4x4 Camera::modelViewMatrix()
         m_modelViewMatrix.translate(m_position);
     }
 
+    // m_modelViewMatrix.lookAt(m_position, m_position + m_forwardVector, m_upVector);
     m_modelViewMatrix.rotate(90, 1, 0, 0);
+
+    //m_modelViewMatrix.rotate(m_rotation);
     m_modelViewMatrix.rotate(m_tilt, 1, 0, 0);
     m_modelViewMatrix.rotate(m_pan, 0, 0, 1);
 
@@ -87,12 +90,58 @@ void Camera::mouseMoved(float deltaX, float deltaY)
 {
     deltaX *= m_mouseSensitivity;
     deltaY *= m_mouseSensitivity;
-
     if(m_tilt - deltaY > -90 && m_tilt - deltaY < 90) {
-        m_tilt -= deltaY;
+        setTilt(m_tilt - deltaY);
     }
 
-    m_pan -= deltaX;
+    setPan(m_pan - deltaX);
+    return;
+
+//    qDebug() << endl << "Starting rotation";
+//    qDebug() << "(dx, dy) = (" << deltaX << ", " << deltaY << ")";
+
+//    deltaX *= -m_mouseSensitivity*DEGTORAD;
+//    deltaY *= -m_mouseSensitivity*DEGTORAD;
+//    deltaX = 0.0;
+//    deltaY = -0.01;
+
+//    QVector3D rightVector = QVector3D::crossProduct(m_forwardVector, m_upVector);
+//    QQuaternion rightAxis = QQuaternion(0.0, rightVector);
+//    QQuaternion upAxis = QQuaternion(0.0, m_upVector);
+//    QQuaternion forwardAxis = QQuaternion(0.0, m_forwardVector);
+//    qDebug() << "Forward: " << m_forwardVector;
+//    qDebug() << "Up: " << m_upVector;
+//    qDebug() << "Right: " << rightAxis.vector();
+
+//    float sinThetaX = sin(deltaX*0.5);
+//    qDebug() << "sin(thetaX): " << sinThetaX;
+//    QQuaternion rotation(cos(deltaX*0.5), sinThetaX*m_upVector);
+//    qDebug() << "Before: : " << m_rotation;
+//    m_rotation = (rotation*m_rotation)*rotation.conjugate();
+//    qDebug() << "After: m_rotation: " << m_rotation;
+
+//    forwardAxis = rotation.conjugate()*(forwardAxis*rotation);
+//    rightAxis = rotation.conjugate()*(rightAxis*rotation);
+
+//    //    qDebug() << "After x-rotation:";
+//    //    qDebug() << "Forward: " << forwardAxis.vector();
+//    //    qDebug() << "Up: " << upAxis.vector();
+
+//    float sinThetaY = sin(deltaY*0.5);
+//    qDebug() << "sin(thetaY): " << sinThetaY;
+//    rotation = QQuaternion(cos(deltaY*0.5), sinThetaY*rightAxis.vector());
+//    m_rotation = (rotation*m_rotation)*rotation.conjugate();
+
+//    forwardAxis = rotation.conjugate()*(forwardAxis*rotation);
+//    upAxis = rotation.conjugate()*(upAxis*rotation);
+
+//    qDebug() << "After y-rotation:";
+//    qDebug() << "Forward: " << forwardAxis.vector();
+//    qDebug() << "Up: " << upAxis.vector();
+
+//    m_upVector = upAxis.vector();
+//    m_forwardVector = forwardAxis.vector();
+//    m_forwardQuat = forwardAxis;
 }
 
 Camera::Camera(QObject *parent) :
@@ -115,12 +164,14 @@ Camera::Camera(QObject *parent) :
     m_forwardSpeed(0),
     m_rightSpeed(0),
     m_lastTime(0),
-    m_mouseSensitivity(0.03)
+    m_mouseSensitivity(0.03),
+    m_forwardVector(QVector3D(1.0, 0.0, 0.0)),
+    m_upVector(QVector3D(0.0, 0.0, 1.0)),
+    m_rotation(QQuaternion(1.0, 0.0, 0.0, 0.0))
 {
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(timerTicked()));
     m_timer.setInterval(16);
     m_timer.start(16);
-
 }
 
 Camera::~Camera()

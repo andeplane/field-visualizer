@@ -7,6 +7,7 @@
 #include <QMatrix4x4>
 #include <QSize>
 #include <QTimer>
+#include <QQuaternion>
 
 class Camera : public QObject
 {
@@ -33,35 +34,20 @@ class Camera : public QObject
     Q_PROPERTY(float mouseSensitivity READ mouseSensitivity WRITE setMouseSensitivity NOTIFY mouseSensitivityChanged)
 private:
     QVector3D m_position;
-
     float m_tilt;
-
     float m_pan;
-
     float m_roll;
-
     QMatrix4x4 m_projectionMatrix;
-
     QMatrix4x4 m_modelViewMatrix;
-
     bool m_fixedPosition;
-
     QSize m_viewportSize;
-
     float m_fieldOfView;
-
     float m_farPlane;
-
     float m_nearPlane;
-
     bool m_hyperSpeed;
-
     float m_moveSpeed;
-
     float m_hyperSpeedFactor;
-
     QTimer m_timer;
-
     bool m_movingForward;
     bool m_movingBackward;
     bool m_movingLeft;
@@ -69,9 +55,11 @@ private:
     float m_forwardSpeed;
     float m_rightSpeed;
     long m_lastTime;
-
     float m_mouseSensitivity;
-
+    QVector3D m_forwardVector;
+    QQuaternion m_forwardQuat;
+    QQuaternion m_rotation;
+    QVector3D m_upVector;
 public:
     explicit Camera(QObject *parent = 0);
     ~Camera();
@@ -96,6 +84,7 @@ public:
 
     QVector3D forwardVector()
     {
+        // return m_forwardVector;
         float x = cos(m_pan*DEGTORAD)*cos(m_tilt*DEGTORAD);
         float y = sin(m_pan*DEGTORAD)*cos(m_tilt*DEGTORAD);
         float z = sin(m_tilt*DEGTORAD);
@@ -105,6 +94,7 @@ public:
 
     QVector3D upVector()
     {
+        // return m_upVector;
         QVector3D forwardVector = this->forwardVector();
         float x = -forwardVector.z()*forwardVector.x()/sqrt(forwardVector.x()*forwardVector.x() + forwardVector.y()*forwardVector.y());
         float y = -forwardVector.z()*forwardVector.y()/sqrt(forwardVector.x()*forwardVector.x() + forwardVector.y()*forwardVector.y());
